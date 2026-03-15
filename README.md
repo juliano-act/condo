@@ -1,48 +1,138 @@
 # CondoConnect
 
-**CondoConnect** é um sistema de **gerenciamento condominial** desenvolvido para **centralizar informações** e **facilitar a comunicação** entre o **síndico** e os **moradores**.
+Portal condominial com backend real em `Next.js`, autenticacao por sessao, banco relacional e fluxo operacional para avisos, reservas de areas comuns e manutencoes.
 
----
+## Stack atual
 
-## Tecnologias Utilizadas
+- `Next.js 16` com App Router e Server Actions
+- `Prisma ORM`
+- `SQLite` para desenvolvimento local
+- Sessao autenticada com `httpOnly cookie` e `jose`
+- `Tailwind CSS 4`
 
-- **Next.js** — Front-end moderno e reativo  
-- **Node.js** + **Express** — Back-end escalável e eficiente  
-- **Tailwind css** — Estilização dos componentes  
-- **API RESTful** — Comunicação entre cliente e servidor  
+## Modulos implementados
 
----
+### Morador
+- Cadastro e login
+- Reserva de areas comuns com validacao de conflito de horario
+- Acompanhamento das proprias reservas
+- Abertura de solicitacoes de manutencao
+- Acompanhamento do status das proprias solicitacoes
 
-## Funcionalidades
+### Publico
+- Mural de avisos aberto
+- Home com destaques e ultimos comunicados
 
-###  Área dos Moradores
-- Visualização de **avisos e comunicados**
-- Envio de **solicitações de manutenção**
-- **Reserva** de áreas comuns do condomínio  
+### Administracao
+- Publicacao de avisos
+- Cadastro de areas comuns
+- Aprovacao, recusa e cancelamento de reservas
+- Atualizacao de status das manutencoes
 
-### Área do Síndico
-- Acesso à **área administrativa**
-- **CRUD completo** para gestão de moradores, avisos e reservas  
+## Banco de dados recomendado
 
----
+### Desenvolvimento local
+- `PostgreSQL` via Docker Compose
+- Motivo: ambiente local mais proximo da producao e sem divergencia de provider do Prisma
 
-## Como Executar o Projeto
+### Producao
+- `PostgreSQL` gerenciado
+- Opcoes praticas: `Neon`, `Supabase`, `Amazon RDS`, `Cloud SQL`
+- Motivo: concorrencia melhor, backup, observabilidade e operacao mais segura que `SQLite`
 
-### Pré-requisitos
-Antes de começar, certifique-se de ter instalado:
-- [Node.js](https://nodejs.org/)
-- [Git](https://git-scm.com/)
-- Um gerenciador de pacotes como **npm** ou **yarn**
+## Funcionalidades recomendadas para a proxima fase
 
-###  Clonando o Repositório
+- Upload de imagens para manutencao em storage S3 compativel
+- Recuperacao de senha por email
+- Notificacoes por email ou WhatsApp para reservas e manutencoes
+- Cadastro de moradores por bloco/unidade com perfis
+- Controle financeiro e boletos
+- Assembleia, votacao e documentos
+- Relatorios administrativos
+- Logs de auditoria
+
+## Executando localmente
+
+### Requisitos
+
+- `Node.js 20+`
+- `npm`
+
+### Passos
+
+1. Instale as dependencias:
+
 ```bash
-git clone https://github.com/seu-usuario/condoconnect.git
+npm install
 ```
 
-## Nota de Manutenção
+2. Crie o arquivo de ambiente:
 
-Em 15 de março de 2026, as dependências de baixo risco foram atualizadas e o projeto continuou passando em `npm run lint` e `npm run build`.
+```bash
+cp .env.example .env
+```
 
-O `eslint` foi mantido na linha `9.x`. Embora o `eslint` `10.x` já exista, a cadeia atual usada por `eslint-config-next@16.1.6` ainda traz plugins e pacotes `typescript-eslint` sem suporte oficial consistente a essa major.
+3. Suba o PostgreSQL local:
 
-Revisitar a atualização para `eslint` `10.x` quando uma versão futura de `eslint-config-next` passar a depender de plugins com suporte explícito a `^10.0.0`.
+```bash
+npm run db:start
+```
+
+4. Gere o banco e aplique a migracao inicial:
+
+```bash
+npm run db:migrate -- --name init
+```
+
+5. Popule dados de exemplo:
+
+```bash
+npm run db:seed
+```
+
+6. Inicie o projeto:
+
+```bash
+npm run dev
+```
+
+### Encerrando o banco local
+
+```bash
+npm run db:stop
+```
+
+## Credenciais de seed
+
+- Admin: `admin@condoconnect.local`
+- Senha: `Admin12345!`
+
+- Morador: `morador@condoconnect.local`
+- Senha: `Morador123!`
+
+## Deploy recomendado
+
+### Aplicacao
+
+- `Node.js 20+`
+- `npm ci`
+- `npm run db:deploy`
+- `npx prisma generate`
+- `npm run build`
+- `npm run start`
+
+### Banco
+
+- Para producao, use `PostgreSQL` gerenciado
+- Opcoes praticas: `Neon`, `Supabase`, `Amazon RDS`, `Cloud SQL`
+- Aplique migracoes com `npm run db:deploy`
+
+### Variaveis de ambiente
+
+- `DATABASE_URL`
+- `SESSION_SECRET`
+
+## Observacoes
+
+- O projeto foi validado com `npm run lint` e `npm run build`.
+- O banco local esperado agora e `PostgreSQL`.

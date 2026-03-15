@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Página de Login/ Register",
+    title: "Acesso | CondoConnect",
 };
 
 export default function Layout({

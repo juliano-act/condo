@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  RESIDENT
+}
+
+enum NoticePriority {
+  INFO
+  WARNING
+  URGENT
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+  CANCELLED
+}
+
+enum MaintenancePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum MaintenanceStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+model User {
+  id                  String               @id @default(cuid())
+  name                String
+  email               String               @unique
+  passwordHash        String
+  unit                String?
+  role                Role                 @default(RESIDENT)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  noticesAuthored     Notice[]             @relation("NoticeAuthor")
+  reservations        Reservation[]
+  maintenanceRequests MaintenanceRequest[]
+}
+
+model Notice {
+  id          String         @id @default(cuid())
+  title       String
+  content     String
+  priority    NoticePriority @default(INFO)
+  isPublished Boolean        @default(true)
+  publishedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  authorId    String?
+  author      User?          @relation("NoticeAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([isPublished, publishedAt])
+  @@index([createdAt])
+}
+
+model CommonArea {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  location    String?
+  description String
+  capacity    Int
+  rules       String?
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  reservations Reservation[]
+}
+
+model Reservation {
+  id        String            @id @default(cuid())
+  notes     String?
+  startAt   DateTime
+  endAt     DateTime
+  status    ReservationStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  areaId    String
+  userId    String
+  area      CommonArea        @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([areaId, startAt, endAt])
+  @@index([userId, createdAt])
+}
+
+model MaintenanceRequest {
+  id          String              @id @default(cuid())
+  title       String
+  description String
+  location    String
+  priority    MaintenancePriority @default(MEDIUM)
+  status      MaintenanceStatus   @default(OPEN)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  userId      String
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([status, priority])
+}

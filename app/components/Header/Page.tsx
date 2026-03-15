@@ -1,46 +1,73 @@
-"use client";
 import Link from "next/link";
 
-export default function Header() {
-return (
-    <header className="w-full bg-white border-b border-gray-200 shadow-sm px-6 py-4">
-    <nav className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="text-2xl font-bold text-blue-600 tracking-tight">
-        <Link href="/" >Condo<span className="text-gray-800">Connect</span></Link>
+import { Role } from "@prisma/client";
+
+import { logoutAction } from "@/app/actions/auth";
+import { Button } from "@/components/ui/button";
+import { getCurrentUser } from "@/lib/auth";
+
+export default async function Header() {
+  const user = await getCurrentUser();
+
+  return (
+    <header className="border-b border-slate-200 bg-white/95 px-4 py-4 shadow-sm backdrop-blur sm:px-6">
+      <nav className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-8">
+          <Link className="text-2xl font-bold tracking-tight text-slate-900" href="/">
+            Condo<span className="text-[#455a64]">Connect</span>
+          </Link>
+
+          <ul className="flex flex-wrap items-center gap-5 text-sm font-medium text-slate-600">
+            <li>
+              <Link className="transition-colors hover:text-slate-900" href="/avisos">
+                Avisos
+              </Link>
+            </li>
+            <li>
+              <Link className="transition-colors hover:text-slate-900" href="/areascomuns">
+                Areas comuns
+              </Link>
+            </li>
+            <li>
+              <Link className="transition-colors hover:text-slate-900" href="/manutencoes">
+                Manutencoes
+              </Link>
+            </li>
+            {user?.role === Role.ADMIN ? (
+              <li>
+                <Link className="transition-colors hover:text-slate-900" href="/admin">
+                  Administracao
+                </Link>
+              </li>
+            ) : null}
+          </ul>
         </div>
 
-        <ul className="hidden md:flex items-center gap-8 text-gray-600 font-medium">
-        <li>
-            <Link href="/avisos" className="hover:text-blue-600 transition-colors">
-            Avisos
-            </Link>
-        </li>
-        <li>
-            <Link href="/areascomuns" className="hover:text-blue-600 transition-colors">
-            Áreas Comuns
-            </Link>
-        </li>
-        <li>
-            <Link href="/manutencoes" className="hover:text-blue-600 transition-colors">
-            Manutenções
-            </Link>
-        </li>
-        </ul>
-        <div className="flex items-center gap-4">
-        <Link 
-            href="/login" 
-            className="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium transition-colors"
-        >
-            Login
-        </Link>
-        <Link 
-            href="/register" 
-            className="px-5 py-2 bg-[#455a64] text-white rounded-lg font-medium hover:bg-[#455a64]/80 transition-all shadow-md active:scale-95"
-        >
-            Register
-        </Link>
-        </div>
-    </nav>
+        {user ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="text-right">
+              <p className="text-sm font-semibold text-slate-900">{user.name}</p>
+              <p className="text-xs text-slate-500">
+                {user.unit ?? (user.role === Role.ADMIN ? "Administrador" : "Morador")}
+              </p>
+            </div>
+            <form action={logoutAction}>
+              <Button variant="outline" type="submit">
+                Sair
+              </Button>
+            </form>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <Button asChild variant="ghost">
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button asChild className="bg-[#455a64] hover:bg-[#36454c]">
+              <Link href="/register">Criar conta</Link>
+            </Button>
+          </div>
+        )}
+      </nav>
     </header>
-);
+  );
 }

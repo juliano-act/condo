@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Page Warnings, maintenance and Common Areas",
+    title: "Portal | CondoConnect",
 };
 
 export default function Layout({
