@@ -37,3 +37,12 @@ Antes de começar, certifique-se de ter instalado:
 ###  Clonando o Repositório
 ```bash
 git clone https://github.com/seu-usuario/condoconnect.git
+```
+
+## Nota de Manutenção
+
+Em 15 de março de 2026, as dependências de baixo risco foram atualizadas e o projeto continuou passando em `npm run lint` e `npm run build`.
+
+O `eslint` foi mantido na linha `9.x`. Embora o `eslint` `10.x` já exista, a cadeia atual usada por `eslint-config-next@16.1.6` ainda traz plugins e pacotes `typescript-eslint` sem suporte oficial consistente a essa major.
+
+Revisitar a atualização para `eslint` `10.x` quando uma versão futura de `eslint-config-next` passar a depender de plugins com suporte explícito a `^10.0.0`.
